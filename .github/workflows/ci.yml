@@ -59,7 +59,11 @@ jobs:
           EXT=""
           [[ "$RUNNER_OS" == "Windows" ]] && EXT=".exe"
           ls -la ".artifacts/aot-smoke/tcat${EXT}"
-          ".artifacts/aot-smoke/tcat${EXT}"
+          ".artifacts/aot-smoke/tcat${EXT}" --diagnostics
+          # A forced protocol draws even though there is no terminal here: half blocks need no escape-sequence support.
+          bytes="$(".artifacts/aot-smoke/tcat${EXT}" --protocol blocks --max-columns 40 examples/sunset.png | wc -c)"
+          echo "half blocks: $bytes bytes"
+          [ "$bytes" -gt 1000 ]
 
       # The unit tests use a fake terminal. This one runs the published binary in a pseudo-terminal and plays the terminal: it
       # checks raw mode, the read timeout and that the terminal is restored. macOS and Linux only (Windows detection is environment-only).
