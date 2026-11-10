@@ -135,7 +135,8 @@
   .panel-bar { display: flex; gap: 6px; padding: 12px 16px; border-bottom: 1px solid var(--line-soft); font-size: 12px; color: var(--dim); }
   .panel-bar span { margin-left: auto; }
   pre { padding: 18px 20px; font-size: 12.5px; line-height: 1.65; overflow-x: auto; white-space: pre; tab-size: 2; }
-  pre.art { background: #000; padding: 14px 16px; font-size: 11px; line-height: 1; }
+  pre.cmd { padding: 16px 20px 10px; font-size: 13px; }
+  pre.art { background: #000; padding: 14px 20px 16px; font-size: clamp(5px, calc((100vw - 90px) / 42), 12px); line-height: 1; text-align: center; }  /* 70 columns of ~0.6em each: 42em wide, so it fits the panel at any width */
   .t-dim { color: var(--dim); }
   .t-mut { color: var(--muted); }
   .t-del { color: var(--accent); }
@@ -234,10 +235,11 @@
         <button id="copy" type="button" aria-label="Copy the install command">Copy</button>
       </div>
     </div>
-    <figure class="panel" aria-label="The detection result for a terminal that answers like WezTerm">
-      <div class="panel-bar">● ● ●<span>tcat --diagnostics</span></div>
-<pre>{{DIAG}}</pre>
-      <figcaption class="note">Output for a scripted terminal that answers like WezTerm: the brand table puts its iTerm2 images before its Sixel and Kitty.</figcaption>
+    <figure class="panel" aria-label="A terminal: the command tcat sunset.png, and the image it draws">
+      <div class="panel-bar">● ● ●<span>terminal</span></div>
+<pre class="cmd"><span class="t-del">$</span> <span class="t-hi">tcat</span> sunset.png</pre>
+<pre class="art" role="img" aria-label="A sunset over the sea, drawn with half-block characters">{{DEMO}}</pre>
+      <figcaption class="note">Half blocks here: two pixels in each character cell. On a Kitty, iTerm2 or Sixel terminal the same command draws the real pixels.</figcaption>
     </figure>
   </div>
 </section>
@@ -320,11 +322,12 @@ renderer.<span class="t-hi">RenderPng</span>(File.ReadAllBytes(<span class="t-ad
       </ol>
     </div>
     <div>
-      <h2>Drawn by the library</h2>
-      <p class="sub">Half blocks put two pixels in each cell. This is a PNG rendered by <code>tcat --protocol blocks</code>.</p>
-      <figure class="panel" aria-label="A sunset over the sea, drawn with half-block characters">
-        <div class="panel-bar">● ● ●<span>tcat --protocol blocks sunset.png</span></div>
-<pre class="art" role="img" aria-label="A sunset over the sea, drawn with half-block characters">{{DEMO}}</pre>
+      <h2>And it says why</h2>
+      <p class="sub">The result lists what was found and a line for every decision. This is a scripted terminal that answers like WezTerm.</p>
+      <figure class="panel" aria-label="The detection result for a terminal that answers like WezTerm">
+        <div class="panel-bar">● ● ●<span>tcat --diagnostics</span></div>
+<pre>{{DIAG}}</pre>
+        <figcaption class="note">The brand table puts WezTerm's iTerm2 images before its Sixel and Kitty, so iTerm2 wins although the terminal answered all three.</figcaption>
       </figure>
     </div>
   </div>
