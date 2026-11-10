@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Nullean.TerminalImages/Nullean.TerminalImages.csproj" />
+    <Project Path="src/Nullean.TerminalImages.Spectre/Nullean.TerminalImages.Spectre.csproj" />
+    <Project Path="src/Nullean.TerminalImages.XenoAtom/Nullean.TerminalImages.XenoAtom.csproj" />
+    <Project Path="src/Nullean.TerminalImages.TerminalGui/Nullean.TerminalImages.TerminalGui.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Nullean.TerminalImages.Tests/Nullean.TerminalImages.Tests.csproj" />
+    <Project Path="tests/Nullean.TerminalImages.Spectre.Tests/Nullean.TerminalImages.Spectre.Tests.csproj" />
+    <Project Path="tests/Nullean.TerminalImages.XenoAtom.Tests/Nullean.TerminalImages.XenoAtom.Tests.csproj" />
+    <Project Path="tests/Nullean.TerminalImages.TerminalGui.Tests/Nullean.TerminalImages.TerminalGui.Tests.csproj" />
+  </Folder>
+  <Folder Name="/examples/">
+    <Project Path="examples/Nullean.TerminalImages.Cat/Nullean.TerminalImages.Cat.csproj" />
+  </Folder>
+</Solution>

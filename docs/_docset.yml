@@ -1,0 +1,27 @@
+project: 'Nullean.TerminalImages'
+max_toc_depth: 2
+dev_docs: true
+
+branding:
+  icon: images/brand/mark.svg
+  favicon: images/brand/png/mark-32.png
+  og-image: images/brand/png/social-card.png
+  apple-touch-icon: images/brand/png/mark-180.png
+
+toc:
+  - file: index.md
+  - folder: getting-started
+    children:
+      - file: index.md
+  - folder: detection
+    children:
+      - file: index.md
+  - folder: protocols
+    children:
+      - file: index.md
+  - folder: integrations
+    children:
+      - file: index.md
+  - folder: troubleshooting
+    children:
+      - file: index.md

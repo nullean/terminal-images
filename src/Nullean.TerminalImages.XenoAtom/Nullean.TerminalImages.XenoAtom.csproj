@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Nullean.TerminalImages.XenoAtom</RootNamespace>
+    <Description>Show images in XenoAtom.Terminal with the Kitty, iTerm2 or Sixel protocol, with half blocks as the fallback. Independent of XenoAtom.Terminal.Graphics and SkiaSharp.</Description>
+    <PackageTags>xenoatom;terminal;console;image;kitty;sixel;iterm2</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="XenoAtom.Terminal" />
+    <ProjectReference Include="../Nullean.TerminalImages/Nullean.TerminalImages.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Nullean.TerminalImages.XenoAtom.Tests" />
+  </ItemGroup>
+
+</Project>

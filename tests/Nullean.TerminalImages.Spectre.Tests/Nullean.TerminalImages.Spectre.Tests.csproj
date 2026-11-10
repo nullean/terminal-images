@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="TUnit" />
+    <PackageReference Include="AwesomeAssertions" />
+    <ProjectReference Include="../../src/Nullean.TerminalImages.Spectre/Nullean.TerminalImages.Spectre.csproj" />
+  </ItemGroup>
+
+</Project>

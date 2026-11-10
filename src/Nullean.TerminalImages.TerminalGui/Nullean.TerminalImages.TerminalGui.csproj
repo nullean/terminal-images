@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Nullean.TerminalImages.TerminalGui</RootNamespace>
+    <Description>Show images in Terminal.Gui v2: a view that feeds Terminal.Gui's Sixel and Kitty pipeline, a half-block fallback, and detection that Terminal.Gui's own handshake cannot do (probing, SSH, tmux).</Description>
+    <PackageTags>terminal-gui;terminalgui;tui;terminal;image;kitty;sixel</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Terminal.Gui" />
+    <ProjectReference Include="../Nullean.TerminalImages/Nullean.TerminalImages.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Nullean.TerminalImages.TerminalGui.Tests" />
+  </ItemGroup>
+
+</Project>

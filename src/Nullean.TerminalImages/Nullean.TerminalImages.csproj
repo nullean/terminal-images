@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Nullean.TerminalImages</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Description>Show images in the terminal with the Kitty, iTerm2 and Sixel protocols, with protocol detection and a half-block fallback. No dependencies, NativeAOT-safe.</Description>
+    <PackageTags>terminal;console;image;kitty;sixel;iterm2;aot</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Nullean.TerminalImages.Tests" />
+  </ItemGroup>
+
+</Project>

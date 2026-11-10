@@ -1,0 +1,153 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+    tags:
+      - "*.*.*"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+permissions:
+  contents: read
+
+# What runs when:
+#   every trigger  build, test and pack the libraries on linux, windows and macos, and publish the NativeAOT smoke app
+# Nothing here publishes packages on its own. Publishing is a manual run on a tag (see the release job).
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    name: Build and test (${{ matrix.os }})
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # MinVer derives the version from tags, so the full tag list must be present.
+      - run: git fetch --prune --tags
+        shell: bash
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Build
+        run: dotnet build -c Release
+
+      - name: Test
+        run: dotnet test -c Release --no-build
+
+      # Fails on any IL2xxx / IL3xxx trim or AOT warning, because warnings are errors.
+      - name: NativeAOT smoke publish
+        run: dotnet publish examples/Nullean.TerminalImages.Cat -c Release -o .artifacts/aot-smoke
+
+      - name: Run the NativeAOT smoke app
+        shell: bash
+        run: |
+          EXT=""
+          [[ "$RUNNER_OS" == "Windows" ]] && EXT=".exe"
+          ls -la ".artifacts/aot-smoke/tcat${EXT}"
+          ".artifacts/aot-smoke/tcat${EXT}"
+
+      # The unit tests use a fake terminal. This one runs the published binary in a pseudo-terminal and plays the terminal: it
+      # checks raw mode, the read timeout and that the terminal is restored. macOS and Linux only (Windows detection is environment-only).
+      - name: Terminal probe test (pty)
+        if: runner.os != 'Windows'
+        run: python3 -I tests/pty/probe_test.py "$PWD/.artifacts/aot-smoke/tcat"
+
+      - name: Pack the libraries
+        shell: bash
+        run: |
+          for project in src/*/*.csproj; do
+            dotnet pack "$project" -c Release --no-build -o .artifacts/package-output
+          done
+          ls .artifacts/package-output
+
+      - name: Upload the library packages
+        if: github.event_name != 'pull_request' && matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v7
+        with:
+          name: nupkg-libraries
+          path: .artifacts/package-output/*.nupkg
+          if-no-files-found: error
+
+  # Publishing to nuget.org: only from a manual run on a tag (gh workflow run ci.yml --ref <tag>), and only once the
+  # build job has passed. Starting that run is the release decision; pushing a tag alone runs CI but never publishes.
+  # nuget.org trusts this workflow file (ci.yml) in this repository through a trusted publishing policy, so there is no
+  # long-lived key. The policy names no environment, so the job uses none: the 'if' below is the guard.
+  release:
+    if: github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/')
+    needs: [build]
+    runs-on: ubuntu-latest
+    name: Publish to nuget.org
+    timeout-minutes: 20
+    permissions:
+      contents: write   # the GitHub release
+      id-token: write   # trusted publishing: exchange the workflow's OIDC token for a short-lived key
+
+    steps:
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: nupkg-*
+          path: packages
+          merge-multiple: true
+
+      - name: Check every package has the tag's version
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME}"
+          ls packages
+          for package in packages/*.nupkg; do
+            case "$(basename "$package")" in
+              *".$version.nupkg") ;;
+              *) echo "::error::$(basename "$package") does not have version $version"; exit 1 ;;
+            esac
+          done
+
+      - name: Log in to nuget.org (trusted publishing)
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}   # an org-wide secret, shared with the other nullean repos
+
+      # Integration packages depend on the core, so it goes first.
+      - name: Publish
+        shell: bash
+        env:
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+        run: |
+          push() {
+            dotnet nuget push "$1" -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json --skip-duplicate --no-symbols
+          }
+          core="packages/Nullean.TerminalImages.${GITHUB_REF_NAME}.nupkg"
+          push "$core"
+          for package in packages/*.nupkg; do
+            [ "$package" = "$core" ] || push "$package"
+          done
+
+      - name: GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pre=""
+          case "$GITHUB_REF_NAME" in *-*) pre="--prerelease" ;; esac
+          gh release create "$GITHUB_REF_NAME" packages/*.nupkg --repo "$GITHUB_REPOSITORY" --verify-tag $pre \
+            --title "$GITHUB_REF_NAME" --generate-notes \
+            --notes "Packages: https://www.nuget.org/packages?q=Nullean.TerminalImages"

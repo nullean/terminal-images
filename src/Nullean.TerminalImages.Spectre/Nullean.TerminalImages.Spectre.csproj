@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Nullean.TerminalImages.Spectre</RootNamespace>
+    <Description>Show images in Spectre.Console with the Kitty, iTerm2 or Sixel protocol, falling back to half blocks drawn with Spectre's own colours.</Description>
+    <PackageTags>spectre;spectre-console;terminal;console;image;kitty;sixel;iterm2</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console" />
+    <ProjectReference Include="../Nullean.TerminalImages/Nullean.TerminalImages.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Nullean.TerminalImages.Spectre.Tests" />
+  </ItemGroup>
+
+</Project>
