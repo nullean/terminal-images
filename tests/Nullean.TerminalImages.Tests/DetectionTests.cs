@@ -140,7 +140,7 @@ public class DetectionTests
 	// ---------- probing ----------
 
 	private static Task<TerminalImageCapabilities> Probe(FakeChannel channel, params (string, string)[] variables) =>
-		TerminalImageDetector.DetectAsync(new TerminalImageDetectionOptions { Environment = Env(variables), IsOutputRedirected = false, Channel = channel }).AsTask();
+		TerminalImageDetector.DetectAsync(new TerminalImageDetectionOptions { Environment = Env(variables), IsOutputRedirected = false, Channel = channel, ProbeKitty = true }).AsTask();
 
 	[Test]
 	public async Task The_probe_ends_with_DA1_and_includes_the_kitty_query()

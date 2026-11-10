@@ -20,6 +20,7 @@ public class TerminalImageTests
 			Ansi = ansi,
 			ColorSystem = ColorSystemSupport.TrueColor,
 			Interactive = InteractionSupport.No,
+			Enrichment = new ProfileEnrichment { UseDefaultEnrichers = false }, // CI enrichers (GitHub Actions) would force ANSI on
 			Out = new AnsiConsoleOutput(writer),
 		});
 		console.Profile.Width = 80;
@@ -86,6 +87,7 @@ public class TerminalImageTests
 			Ansi = AnsiSupport.Yes,
 			ColorSystem = ColorSystemSupport.EightBit,
 			Interactive = InteractionSupport.No,
+			Enrichment = new ProfileEnrichment { UseDefaultEnrichers = false }, // CI enrichers (GitHub Actions) would force ANSI on
 			Out = new AnsiConsoleOutput(writer),
 		});
 

@@ -20,6 +20,12 @@ public sealed class TerminalImageDetectionOptions
 	/// </summary>
 	public ITerminalQueryChannel? Channel { get; init; }
 
+	/// <summary>
+	/// Whether the probe includes the Kitty graphics query. Null decides by platform: it is left out on Windows, where the console
+	/// can echo the query onto the screen. Set it to true or false to decide yourself.
+	/// </summary>
+	public bool? ProbeKitty { get; init; }
+
 	/// <summary>The longest to wait for a probe reply. Null picks 250 ms, or 1.5 s over SSH where the round trip is slower.</summary>
 	public TimeSpan? ProbeTimeout { get; init; }
 
@@ -71,7 +77,7 @@ public static class TerminalImageDetector
 				return capabilities with { Diagnostics = [.. capabilities.Diagnostics, "No terminal to ask: using the environment only."] };
 
 			var timeout = options.ProbeTimeout ?? (capabilities.IsRemote ? TimeSpan.FromMilliseconds(1500) : TimeSpan.FromMilliseconds(250));
-			return await Probe(capabilities, channel, timeout, cancellationToken).ConfigureAwait(false);
+			return await Probe(capabilities, channel, timeout, options.ProbeKitty, cancellationToken).ConfigureAwait(false);
 		}
 		finally
 		{
@@ -88,10 +94,10 @@ public static class TerminalImageDetector
 
 	private const string SixelRegistersRequest = "\e[?1;1;0S\e[c";
 
-	private static async ValueTask<TerminalImageCapabilities> Probe(TerminalImageCapabilities fromEnvironment, ITerminalQueryChannel channel, TimeSpan timeout, CancellationToken cancellationToken)
+	private static async ValueTask<TerminalImageCapabilities> Probe(TerminalImageCapabilities fromEnvironment, ITerminalQueryChannel channel, TimeSpan timeout, bool? probeKitty, CancellationToken cancellationToken)
 	{
 		var diagnostics = new List<string>(fromEnvironment.Diagnostics);
-		var includeKitty = !OperatingSystem.IsWindows() && !TerminalBrands.SkipsKittyProbe(fromEnvironment.Brand);
+		var includeKitty = (probeKitty ?? !OperatingSystem.IsWindows()) && !TerminalBrands.SkipsKittyProbe(fromEnvironment.Brand);
 
 		// In a multiplexer the whole batch, DA1 included, goes to the outer terminal: the multiplexer would answer DA1 itself and
 		// end the wait before the real terminal replied.

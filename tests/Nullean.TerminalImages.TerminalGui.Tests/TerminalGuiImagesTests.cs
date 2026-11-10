@@ -60,6 +60,7 @@ public class TerminalImageViewTests
 		using var app = Terminal.Gui.App.Application.Create();
 		app.Init(DriverRegistry.Names.ANSI);
 		var driver = app.Driver!;
+		driver.SetScreenSize(80, 25); // a CI runner can have no console, so the screen would be 0x0 and nothing would draw
 		driver.ApplyDetection(Caps(supported));
 		var view = new CapturingView { Width = width, Height = height, Image = image };
 		var window = new Terminal.Gui.Views.Window { Width = Terminal.Gui.ViewBase.Dim.Fill(), Height = Terminal.Gui.ViewBase.Dim.Fill() };
@@ -75,9 +76,10 @@ public class TerminalImageViewTests
 	[Timeout(60_000)]
 	public void The_view_hands_a_scaled_image_to_terminal_guis_raster_pipeline_when_sixel_is_supported(CancellationToken cancellationToken)
 	{
-		var captured = Draw([P.Sixel, P.HalfBlocks], RgbaImage.Solid(400, 400, 1, 2, 3)).Captured;
+		var view = Draw([P.Sixel, P.HalfBlocks], RgbaImage.Solid(400, 400, 1, 2, 3));
+		var captured = view.Captured;
 
-		captured.Should().NotBeNull();
+		captured.Should().NotBeNull(view.Seen);
 		var command = captured!;
 		var pixels = command.Pixels!;
 		// 20x5 cells at 10x20 px is 200x100 px: the square image fits at 100x100, which is 10 columns by 5 rows.
@@ -105,7 +107,9 @@ public class TerminalImageViewTests
 			}
 		}
 
-		var command = Draw([P.Sixel], new RgbaImage(400, 200, pixels), width: 40, height: 10).Captured!;
+		var view = Draw([P.Sixel], new RgbaImage(400, 200, pixels), width: 40, height: 10);
+		view.Captured.Should().NotBeNull(view.Seen);
+		var command = view.Captured!;
 		var drawn = command.Pixels!;
 
 		// 40x10 cells at 10x20 px is 400x200 px: the image keeps its size.
@@ -119,8 +123,11 @@ public class TerminalImageViewTests
 
 	[Test]
 	[Timeout(60_000)]
-	public void Kitty_also_goes_through_the_raster_pipeline(CancellationToken cancellationToken) =>
-		Draw([P.Kitty, P.HalfBlocks], RgbaImage.Solid(400, 400, 1, 2, 3)).Captured.Should().NotBeNull();
+	public void Kitty_also_goes_through_the_raster_pipeline(CancellationToken cancellationToken)
+	{
+		var view = Draw([P.Kitty, P.HalfBlocks], RgbaImage.Solid(400, 400, 1, 2, 3));
+		view.Captured.Should().NotBeNull(view.Seen);
+	}
 
 	[Test]
 	[Timeout(60_000)]
@@ -149,7 +156,7 @@ public class TerminalImageViewHalfBlockTests
 
 		var view = TerminalImageViewTests.DrawView([P.HalfBlocks], new RgbaImage(4, 2, pixels), width: 4, height: 1);
 
-		view.FirstCell.Should().NotBeNull();
+		view.FirstCell.Should().NotBeNull(view.Seen);
 		view.FirstCell!.Value.Grapheme.Should().Be("▀");
 		view.FirstCell.Value.Foreground!.Value.R.Should().Be(255);
 		view.FirstCell.Value.Background!.Value.B.Should().Be(255);
@@ -160,11 +167,15 @@ internal sealed class CapturingView : TerminalImageView
 {
 	public RasterImageCommand? Captured { get; private set; }
 
+	/// <summary>What the view saw when it was drawn, for the assertion messages.</summary>
+	public string Seen { get; private set; } = "never drawn";
+
 	public (string? Grapheme, Terminal.Gui.Drawing.Color? Foreground, Terminal.Gui.Drawing.Color? Background)? FirstCell { get; private set; }
 
 	protected override bool OnDrawingContent(Terminal.Gui.ViewBase.DrawContext? context)
 	{
 		var result = base.OnDrawingContent(context);
+		Seen = $"drawn with viewport {Viewport}, driver {(App?.Driver is null ? "missing" : "present")}, sixel {App?.Driver?.SixelSupport?.IsSupported}, kitty {App?.Driver?.KittyGraphicsSupport?.IsSupported}";
 		Captured = App?.Driver?.GetOutputBuffer().GetRasterImages().FirstOrDefault();
 		var origin = ViewportToScreen(System.Drawing.Point.Empty);
 		if (App?.Driver?.Contents is { } contents)

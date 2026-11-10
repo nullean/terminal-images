@@ -36,6 +36,9 @@ and a second query (`ESC [ ? 1 ; 1 ; 0 S`, XTSMGRAPHICS) asks how many colour re
 | DA1 with `;4;` | Sixel |
 | `ESC [ 6 ; height ; width t` | Cell size in pixels |
 
+The Kitty query is left out on Windows, where the console can echo it onto the screen, and for iTerm2, where it garbles the window
+title. `TerminalImageDetectionOptions.ProbeKitty` decides it yourself.
+
 The timeout applies only when the terminal says nothing: 250 ms, or 1.5 s when `SSH_*` is set. It is
 `TerminalImageDetectionOptions.ProbeTimeout`.
 
