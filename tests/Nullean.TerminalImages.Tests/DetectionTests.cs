@@ -44,7 +44,7 @@ public class DetectionTests
 
 		caps.Brand.Should().Be(brand);
 		caps.Preferred.Should().Be(preferred);
-		caps.Supported.Last().Should().Be(P.HalfBlocks); // half blocks are always the last resort
+		caps.Supported[^1].Should().Be(P.HalfBlocks); // half blocks are always the last resort
 	}
 
 	[Test]
@@ -132,9 +132,11 @@ public class DetectionTests
 		caps.Diagnostics.Should().Contain(line => line.Contains("NULLEAN_TERMINAL_CELL_SIZE"));
 	}
 
+	private static readonly string[] ProtocolNames = ["kitty", "ITERM2", "sixel", "blocks", "none", "off", "x"];
+
 	[Test]
 	public void ParseProtocol_knows_its_names() =>
-		new[] { "kitty", "ITERM2", "sixel", "blocks", "none", "off", "x" }.Select(TerminalImageDetector.ParseProtocol)
+		ProtocolNames.Select(TerminalImageDetector.ParseProtocol)
 			.Should().Equal(P.Kitty, P.ITerm2, P.Sixel, P.HalfBlocks, P.None, P.None, null);
 
 	// ---------- probing ----------

@@ -38,7 +38,7 @@ a real Terminal.Gui application with its ANSI driver.
 
 - The core package (`src/Nullean.TerminalImages`) has no `PackageReference`s. No SkiaSharp, no ImageSharp, no
   System.IO.Hashing. The BCL is fine. Host integrations live in their own `Nullean.TerminalImages.<Host>` package.
-- `IsAotCompatible` stays on for every `src/` project and warnings are errors: no reflection, no `Activator`, no
+- `IsAotCompatible` stays on for every `src/` project, and warnings are errors in `src/`, `examples/` and `tests/` alike: no reflection, no `Activator`, no
   runtime `Regex`. P/Invokes use `[LibraryImport]`.
 - Detection parsing is pure and tested against recorded terminal replies. Never block without a timeout, and always
   restore the terminal's mode in a `finally`. Terminal I/O needs the pty test, not just a fake channel: a fake cannot see a

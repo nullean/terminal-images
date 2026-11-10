@@ -42,7 +42,6 @@
 
   <!-- tests/ projects -->
   <PropertyGroup Condition="$(MSBuildProjectDirectory.Replace('\','/').Contains('/tests/'))">
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <IsTestProject>true</IsTestProject>
     <IsPackable>false</IsPackable>
     <OutputType>Exe</OutputType>

@@ -76,6 +76,7 @@ public class TerminalImageViewTests
 	[Timeout(60_000)]
 	public void The_view_hands_a_scaled_image_to_terminal_guis_raster_pipeline_when_sixel_is_supported(CancellationToken cancellationToken)
 	{
+		cancellationToken.ThrowIfCancellationRequested();
 		var view = Draw([P.Sixel, P.HalfBlocks], RgbaImage.Solid(400, 400, 1, 2, 3));
 		var captured = view.Captured;
 
@@ -94,6 +95,7 @@ public class TerminalImageViewTests
 	[Timeout(60_000)]
 	public void Pixels_are_indexed_x_first_and_keep_their_place(CancellationToken cancellationToken)
 	{
+		cancellationToken.ThrowIfCancellationRequested();
 		// 400x200: the left half red, the right half blue, so a swapped index or a mirrored copy shows up.
 		var pixels = new byte[400 * 200 * 4];
 		for (var y = 0; y < 200; y++)
@@ -125,14 +127,19 @@ public class TerminalImageViewTests
 	[Timeout(60_000)]
 	public void Kitty_also_goes_through_the_raster_pipeline(CancellationToken cancellationToken)
 	{
+		cancellationToken.ThrowIfCancellationRequested();
 		var view = Draw([P.Kitty, P.HalfBlocks], RgbaImage.Solid(400, 400, 1, 2, 3));
 		view.Captured.Should().NotBeNull(view.Seen);
 	}
 
 	[Test]
 	[Timeout(60_000)]
-	public void Without_sixel_or_kitty_nothing_is_added_to_the_raster_pipeline(CancellationToken cancellationToken) =>
-		Draw([P.HalfBlocks], RgbaImage.Solid(400, 400, 1, 2, 3)).Captured.Should().BeNull();
+	public void Without_sixel_or_kitty_nothing_is_added_to_the_raster_pipeline(CancellationToken cancellationToken)
+	{
+		cancellationToken.ThrowIfCancellationRequested();
+		var view = Draw([P.HalfBlocks], RgbaImage.Solid(400, 400, 1, 2, 3));
+		view.Captured.Should().BeNull(view.Seen);
+	}
 }
 
 public class TerminalImageViewHalfBlockTests
@@ -141,6 +148,7 @@ public class TerminalImageViewHalfBlockTests
 	[Timeout(60_000)]
 	public void Without_graphics_the_view_draws_half_blocks_in_its_cells(CancellationToken cancellationToken)
 	{
+		cancellationToken.ThrowIfCancellationRequested();
 		// Two pixels tall, so exactly one cell: red on top, blue below. The cell is an upper half block, red in front, blue behind.
 		var pixels = new byte[4 * 2 * 4];
 		for (var y = 0; y < 2; y++)
@@ -176,7 +184,8 @@ internal sealed class CapturingView : TerminalImageView
 	{
 		var result = base.OnDrawingContent(context);
 		Seen = $"drawn with viewport {Viewport}, driver {(App?.Driver is null ? "missing" : "present")}, sixel {App?.Driver?.SixelSupport?.IsSupported}, kitty {App?.Driver?.KittyGraphicsSupport?.IsSupported}";
-		Captured = App?.Driver?.GetOutputBuffer().GetRasterImages().FirstOrDefault();
+		var images = App?.Driver?.GetOutputBuffer().GetRasterImages();
+		Captured = images is { Count: > 0 } ? images[0] : null;
 		var origin = ViewportToScreen(System.Drawing.Point.Empty);
 		if (App?.Driver?.Contents is { } contents)
 		{

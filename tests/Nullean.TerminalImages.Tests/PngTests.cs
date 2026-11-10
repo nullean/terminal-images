@@ -11,6 +11,8 @@ public class PngTests
 	private const int W = 11;
 	private const int H = 7;
 
+	private const byte Opaque = 255;
+
 	private static int Max(int depth) => (1 << depth) - 1;
 
 	[Test]
@@ -36,7 +38,7 @@ public class PngTests
 			for (var x = 0; x < W; x++)
 			{
 				var expected = Scaled(Sample(x, y, 0), depth);
-				Pixel(image, x, y).Should().Be((expected, expected, expected, (byte)255), $"at {x},{y}");
+				Pixel(image, x, y).Should().Be((expected, expected, expected, Opaque), $"at {x},{y}");
 			}
 		}
 	}
@@ -54,7 +56,7 @@ public class PngTests
 		for (var y = 0; y < H; y++)
 		{
 			for (var x = 0; x < W; x++)
-				Pixel(image, x, y).Should().Be((Scaled(Sample(x, y, 0), depth), Scaled(Sample(x, y, 1), depth), Scaled(Sample(x, y, 2), depth), (byte)255), $"at {x},{y}");
+				Pixel(image, x, y).Should().Be((Scaled(Sample(x, y, 0), depth), Scaled(Sample(x, y, 1), depth), Scaled(Sample(x, y, 2), depth), Opaque), $"at {x},{y}");
 		}
 	}
 
