@@ -34,7 +34,7 @@ a Device Attributes request. Every terminal answers that, so the wait ends when 
 ## Status
 
 An early release. The encoders, PNG codec, resampler, detection logic and renderer have mutation-checked unit tests. The terminal
-probe has run against a scripted terminal in a pseudo-terminal on macOS. Output on real terminals (Kitty, Ghostty, iTerm2,
+probe has run against a scripted terminal in a pseudo-terminal, on macOS and on Linux. Output on real terminals (Kitty, Ghostty, iTerm2,
 WezTerm, foot, Windows Terminal, xterm), and tmux and SSH, is **not yet verified**: see [troubleshooting](troubleshooting/index.md)
 for what detection assumes about each.
 

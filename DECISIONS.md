@@ -24,7 +24,7 @@ like "ready", and the following `read` blocked forever whenever the terminal sai
 terminal itself, so a read returns after a tenth of a second with nothing. `tests/pty/probe_test.py` runs in CI.
 
 `struct termios` differs between macOS and Linux, so it is a block of bytes with the few offsets needed. The macOS layout was
-verified by that test; the Linux layout is verified only by CI.
+verified by that test on a Mac, and the Linux layout by the same test on a Linux runner in CI.
 
 ## No standalone probe on Windows
 

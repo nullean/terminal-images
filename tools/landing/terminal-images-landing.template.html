@@ -376,7 +376,7 @@ renderer.<span class="t-hi">RenderPng</span>(File.ReadAllBytes(<span class="t-ad
   <div class="wrap">
     <h2>What is verified</h2>
     <div class="status">
-      <p><b>Verified:</b> the encoders, PNG codec, resampler, detection logic and renderer, with unit tests that were checked by breaking the code on purpose; the terminal probe, by running the published NativeAOT binary in a pseudo-terminal on macOS with a scripted terminal; the Terminal.Gui view in a live Terminal.Gui application; XenoAtom on its in-memory backend.</p>
+      <p><b>Verified:</b> the encoders, PNG codec, resampler, detection logic and renderer, with unit tests that were checked by breaking the code on purpose; the terminal probe, by running the published NativeAOT binary in a pseudo-terminal with a scripted terminal, on macOS and Linux; the Terminal.Gui view in a live Terminal.Gui application; XenoAtom on its in-memory backend.</p>
       <p><b>Not yet verified:</b> output on real terminals (Kitty, Ghostty, iTerm2, WezTerm, foot, Windows Terminal, xterm), and tmux or SSH. The terminal-specific choices come from how other tools and the terminals' own documentation treat them. If one is wrong, <code>tcat --diagnostics</code> shows why, and an override fixes it. <a href="troubleshooting/" style="color:var(--accent)">What detection assumes →</a></p>
     </div>
   </div>

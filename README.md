@@ -44,13 +44,12 @@ An early release. What has been verified, and how:
 | Verified | How |
 |---|---|
 | Encoders, PNG codec, resampler, detection logic, renderer | Unit tests, with mutation checks: each rule was broken on purpose to confirm a test fails |
-| Probing a terminal (raw mode, timeout, restoring the terminal) | The published NativeAOT binary run in a pseudo-terminal on macOS, with a scripted terminal. The same test runs in CI on Linux |
+| Probing a terminal (raw mode, timeout, restoring the terminal) | The published NativeAOT binary run in a pseudo-terminal with a scripted terminal, on macOS and on Linux (in CI) |
 | Terminal.Gui view | A live Terminal.Gui application with its ANSI driver, in tests |
 | XenoAtom | Its in-memory backend |
-| NativeAOT | Published on macOS arm64 with warnings as errors; CI repeats it on Linux, macOS and Windows |
+| NativeAOT | Published with warnings as errors on macOS arm64, and in CI on Linux, macOS and Windows, where the published binary also runs |
 
-**Not yet verified:** output on real terminals (Kitty, Ghostty, iTerm2, WezTerm, foot, Windows Terminal, xterm), Linux and
-Windows runtime behaviour beyond CI, and tmux or SSH. The terminal-specific choices in
+**Not yet verified:** output on real terminals (Kitty, Ghostty, iTerm2, WezTerm, foot, Windows Terminal, xterm), and tmux or SSH. The terminal-specific choices in
 [`TerminalBrands`](src/Nullean.TerminalImages/Detection/TerminalBrands.cs) come from how other terminal image tools and the
 terminals' documentation treat them. If a terminal misbehaves, `tcat --diagnostics` shows what was detected and why, and
 `NULLEAN_TERMINAL_IMAGES=kitty|iterm2|sixel|blocks|none` overrides it.
