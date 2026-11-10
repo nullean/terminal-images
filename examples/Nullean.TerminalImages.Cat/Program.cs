@@ -113,6 +113,12 @@ catch (IOException)
 	// not a terminal: keep the defaults
 }
 
+// Unix reports 0 (it does not throw) when there is no terminal, for example on a CI runner: keep the defaults then too.
+if (width <= 0)
+	width = 80;
+if (height <= 0)
+	height = 24;
+
 var renderer = new TerminalImageRenderer(capabilities, new TerminalImageRenderOptions
 {
 	MaxColumns = maxColumns ?? Math.Max(1, width),

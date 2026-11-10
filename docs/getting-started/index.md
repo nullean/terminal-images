@@ -47,10 +47,14 @@ There is no JPEG, GIF or WebP decoder: decode those with a library of your choic
 ## Sizing
 
 ```csharp
+// Console.WindowWidth and WindowHeight are 0 when stdout is not a terminal, so check before using them.
+var columns = Console.WindowWidth > 0 ? Console.WindowWidth : 80;
+var rows = Console.WindowHeight > 2 ? Console.WindowHeight - 2 : 24;
+
 var renderer = new TerminalImageRenderer(capabilities, new TerminalImageRenderOptions
 {
-    MaxColumns = Console.WindowWidth,
-    MaxRows = Console.WindowHeight - 2,
+    MaxColumns = columns,
+    MaxRows = rows,
     AllowUpscale = false,                       // small images keep their size
     Resample = ResampleMode.Auto,               // Nearest for pixel art
     FallbackCellSize = new CellPixelSize(10, 20), // used when the terminal's cell size is unknown
