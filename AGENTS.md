@@ -24,6 +24,22 @@ scripts/docs.sh                          build and serve the docs locally; needs
 
 ## Build and test
 
+`mise install` provides the toolchain: the .NET 11 SDK pinned in `global.json`, plus the net10.0 runtime every project
+and test here targets. The everyday tasks have the same names as in every nullean repository, and run the same dotnet
+commands as CI (there is no build project):
+
+```sh
+mise run build            # dotnet build -c Release
+mise run test             # build, then dotnet test -c Release --no-build
+mise run pack             # build, then pack every src/ project into .artifacts/package-output
+mise run ci               # what CI's build job runs: build, test, NativeAOT smoke publish and run, pty test, pack
+mise run docs             # scripts/docs.sh: build the docs and serve them
+mise run check            # workflow security checks (zizmor)
+mise run clean            # dotnet clean -c Release
+```
+
+Without mise:
+
 ```sh
 dotnet build -c Release
 dotnet test -c Release
@@ -31,7 +47,7 @@ dotnet publish examples/Nullean.TerminalImages.Cat -c Release -o .artifacts/aot-
 python3 -I tests/pty/probe_test.py "$PWD/.artifacts/aot-smoke/tcat"                         # macOS and Linux
 ```
 
-Requires the .NET 10 SDK (pinned in `global.json`). Tests run on Microsoft.Testing.Platform with TUnit. The Terminal.Gui tests start
+Requires the .NET 11 SDK (pinned in `global.json`). Tests run on Microsoft.Testing.Platform with TUnit. The Terminal.Gui tests start
 a real Terminal.Gui application with its ANSI driver.
 
 ## Rules
