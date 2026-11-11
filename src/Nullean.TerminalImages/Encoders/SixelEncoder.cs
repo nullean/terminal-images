@@ -54,9 +54,7 @@ public sealed class SixelEncoder : ITerminalImageEncoder
 		var height = image.Height;
 		var pixels = image.Pixels.Span;
 
-		var palette = Palette == SixelPalette.Rgb332 && maxColors >= 256
-			? FixedPalette()
-			: MedianCut(pixels, maxColors);
+		var palette = Palette == SixelPalette.Rgb332 && maxColors >= 256 ? FixedPalette() : MedianCut(pixels, maxColors);
 		var indices = Quantize(pixels, width, height, palette, Dither);
 
 		var hasTransparent = false;
@@ -85,8 +83,15 @@ public sealed class SixelEncoder : ITerminalImageEncoder
 		{
 			if (!used[c])
 				continue;
-			text.Append('#').Append(c.ToString(CultureInfo.InvariantCulture)).Append(";2;")
-				.Append(Percent(palette.R[c])).Append(';').Append(Percent(palette.G[c])).Append(';').Append(Percent(palette.B[c]));
+			text
+				.Append('#')
+				.Append(c.ToString(CultureInfo.InvariantCulture))
+				.Append(";2;")
+				.Append(Percent(palette.R[c]))
+				.Append(';')
+				.Append(Percent(palette.G[c]))
+				.Append(';')
+				.Append(Percent(palette.B[c]));
 		}
 
 		output.Write(text.ToString());

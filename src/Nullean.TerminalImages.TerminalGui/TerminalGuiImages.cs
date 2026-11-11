@@ -29,11 +29,7 @@ public static class TerminalGuiImages
 	public static KittyGraphicsSupportResult ToKittySupport(TerminalImageCapabilities capabilities)
 	{
 		ArgumentNullException.ThrowIfNull(capabilities);
-		return new KittyGraphicsSupportResult
-		{
-			IsSupported = capabilities.Supports(TerminalImageProtocol.Kitty),
-			Resolution = ToSize(capabilities.CellSize),
-		};
+		return new KittyGraphicsSupportResult { IsSupported = capabilities.Supports(TerminalImageProtocol.Kitty), Resolution = ToSize(capabilities.CellSize), };
 	}
 
 	/// <summary>Tells the driver what was detected, replacing what Terminal.Gui worked out itself.</summary>

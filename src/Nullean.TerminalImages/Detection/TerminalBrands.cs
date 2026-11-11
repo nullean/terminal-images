@@ -14,11 +14,9 @@ public static class TerminalBrands
 	{
 		["kitty"] = [TerminalImageProtocol.Kitty],
 		["ghostty"] = [TerminalImageProtocol.Kitty],
-
 		// WezTerm speaks all three, but its Kitty and Sixel support are rougher than its iTerm2 images.
 		["wezterm"] = [TerminalImageProtocol.ITerm2, TerminalImageProtocol.Sixel],
 		["iterm2"] = [TerminalImageProtocol.ITerm2],
-
 		// Konsole's Sixel is buggy, and its Kitty support partial.
 		["konsole"] = [TerminalImageProtocol.ITerm2],
 		["warp"] = [TerminalImageProtocol.ITerm2],
@@ -26,15 +24,12 @@ public static class TerminalBrands
 		["bobcat"] = [TerminalImageProtocol.ITerm2],
 		["mintty"] = [TerminalImageProtocol.ITerm2, TerminalImageProtocol.Sixel],
 		["vscode"] = [TerminalImageProtocol.ITerm2, TerminalImageProtocol.Sixel],
-
 		["foot"] = [TerminalImageProtocol.Sixel],
 		["windows-terminal"] = [TerminalImageProtocol.Sixel],
 		["mlterm"] = [TerminalImageProtocol.Sixel],
 		["contour"] = [TerminalImageProtocol.Sixel],
-
 		// Known to have none of the three: half blocks are the best there is.
 		["apple-terminal"] = [],
-
 		// xterm only has Sixel when started with -ti vt340, so it is left to the probe (DA1 reports it).
 		["xterm"] = [],
 	};
@@ -53,10 +48,12 @@ public static class TerminalBrands
 	}
 
 	/// <summary>Whether the terminal is known to draw a different kind of image when the Kitty probe is sent, so the probe is skipped.</summary>
-	public static bool SkipsKittyProbe(string? brand) => string.Equals(brand, "iterm2", StringComparison.OrdinalIgnoreCase); // the query garbles the window title
+	public static bool SkipsKittyProbe(string? brand) =>
+		string.Equals(brand, "iterm2", StringComparison.OrdinalIgnoreCase); // the query garbles the window title
 
 	/// <summary>Whether 24-bit colour is certain for this terminal without <c>COLORTERM</c>.</summary>
-	public static bool HasTrueColor(string? brand) => brand is "kitty" or "ghostty" or "wezterm" or "iterm2" or "foot" or "windows-terminal" or "warp" or "vscode" or "rio" or "konsole";
+	public static bool HasTrueColor(string? brand) =>
+		brand is "kitty" or "ghostty" or "wezterm" or "iterm2" or "foot" or "windows-terminal" or "warp" or "vscode" or "rio" or "konsole";
 
 	/// <summary>Maps an XTVERSION name such as <c>kitty</c>, <c>WezTerm</c>, <c>iTerm2</c> or <c>XTerm</c> to a brand id.</summary>
 	public static string? FromVersionName(string name)

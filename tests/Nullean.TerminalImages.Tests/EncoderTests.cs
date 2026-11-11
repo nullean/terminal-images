@@ -296,8 +296,7 @@ public class EncoderTests
 	[Test]
 	public void Tmux_passthrough_doubles_every_escape_and_wraps_each_sequence_on_its_own()
 	{
-		TmuxPassthrough.Wrap("\e_Gabc\e\\\e_Gdef\e\\")
-			.Should().Be("\ePtmux;\e\e_Gabc\e\e\\\e\\\ePtmux;\e\e_Gdef\e\e\\\e\\");
+		TmuxPassthrough.Wrap("\e_Gabc\e\\\e_Gdef\e\\").Should().Be("\ePtmux;\e\e_Gabc\e\e\\\e\\\ePtmux;\e\e_Gdef\e\e\\\e\\");
 		TmuxPassthrough.Wrap("\e]1337;File=x\a").Should().Be("\ePtmux;\e\e]1337;File=x\a\e\\"); // BEL-terminated: one piece
 		TmuxPassthrough.Wrap("").Should().Be("");
 	}

@@ -32,9 +32,10 @@ commands as CI (there is no build project):
 mise run build            # dotnet build -c Release
 mise run test             # build, then dotnet test -c Release --no-build
 mise run pack             # build, then pack every src/ project into .artifacts/package-output
-mise run ci               # what CI's build job runs: build, test, NativeAOT smoke publish and run, pty test, pack
+mise run ci               # what CI's build job runs: build, curb check, test, NativeAOT smoke publish and run, pty test, pack
 mise run docs             # scripts/docs.sh: build the docs and serve them
-mise run check            # workflow security checks (zizmor)
+mise run format           # format the repository with curb
+mise run check            # formatting drift (curb) and workflow security checks (zizmor)
 mise run clean            # dotnet clean -c Release
 mise run release          # show the release draft; `mise run release publish` releases
 ```

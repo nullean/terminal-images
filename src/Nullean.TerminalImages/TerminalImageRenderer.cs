@@ -90,8 +90,11 @@ public sealed class TerminalImageRenderer
 		if (Protocol == TerminalImageProtocol.HalfBlocks)
 		{
 			// Plain text: no cursor handling, and never wrapped for tmux.
-			new HalfBlockEncoder { ColorDepth = _capabilities.TrueColor ? HalfBlockColorDepth.TrueColor : HalfBlockColorDepth.Palette256 }
-				.Encode(scaled, layout.Cells, output);
+			new HalfBlockEncoder { ColorDepth = _capabilities.TrueColor ? HalfBlockColorDepth.TrueColor : HalfBlockColorDepth.Palette256 }.Encode(
+				scaled,
+				layout.Cells,
+				output
+			);
 			return true;
 		}
 

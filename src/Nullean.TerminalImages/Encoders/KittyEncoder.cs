@@ -30,7 +30,8 @@ public sealed class KittyEncoder : ITerminalImageEncoder
 		var pixels = image.Pixels.ToArray();
 		var keys = new System.Text.StringBuilder("a=T,f=32,s=")
 			.Append(image.Width.ToString(CultureInfo.InvariantCulture))
-			.Append(",v=").Append(image.Height.ToString(CultureInfo.InvariantCulture));
+			.Append(",v=")
+			.Append(image.Height.ToString(CultureInfo.InvariantCulture));
 		if (Compress)
 		{
 			pixels = Deflate(pixels);
@@ -48,15 +49,18 @@ public sealed class KittyEncoder : ITerminalImageEncoder
 	}
 
 	/// <summary>The sequence that deletes an image and frees its data (<c>a=d,d=I</c>).</summary>
-	public static string Delete(uint imageId) =>
-		string.Create(CultureInfo.InvariantCulture, $"\e_Ga=d,d=I,i={imageId},q=2\e\\");
+	public static string Delete(uint imageId) => string.Create(CultureInfo.InvariantCulture, $"\e_Ga=d,d=I,i={imageId},q=2\e\\");
 
 	private void WriteChunks(System.Text.StringBuilder firstKeys, byte[] payload, CellSize cells, TextWriter output)
 	{
 		if (ImageId != 0)
 			firstKeys.Append(",i=").Append(ImageId.ToString(CultureInfo.InvariantCulture));
 		if (cells.IsSpecified)
-			firstKeys.Append(",c=").Append(cells.Columns.ToString(CultureInfo.InvariantCulture)).Append(",r=").Append(cells.Rows.ToString(CultureInfo.InvariantCulture));
+			firstKeys
+				.Append(",c=")
+				.Append(cells.Columns.ToString(CultureInfo.InvariantCulture))
+				.Append(",r=")
+				.Append(cells.Rows.ToString(CultureInfo.InvariantCulture));
 		firstKeys.Append(",q=2");
 
 		var encoded = Convert.ToBase64String(payload);
@@ -82,7 +86,8 @@ public sealed class KittyEncoder : ITerminalImageEncoder
 			output.Write("\e\\");
 			first = false;
 			offset += length;
-		} while (offset < encoded.Length);
+		}
+		while (offset < encoded.Length);
 	}
 
 	private static byte[] Deflate(byte[] data)

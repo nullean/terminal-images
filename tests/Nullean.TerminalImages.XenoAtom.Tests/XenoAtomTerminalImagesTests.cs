@@ -10,15 +10,15 @@ namespace Nullean.TerminalImages.XenoAtom.Tests;
 public class XenoAtomTerminalImagesTests
 {
 	private static (TerminalInstance Terminal, InMemoryTerminalBackend Backend) Create(
-		bool ansi = true, bool redirected = false, TerminalColorLevel color = TerminalColorLevel.TrueColor)
+		bool ansi = true,
+		bool redirected = false,
+		TerminalColorLevel color = TerminalColorLevel.TrueColor
+	)
 	{
-		var backend = new InMemoryTerminalBackend(new TerminalSize(80, 24), new TerminalCapabilities
-		{
-			AnsiEnabled = ansi,
-			IsOutputRedirected = redirected,
-			IsInputRedirected = false,
-			ColorLevel = color,
-		});
+		var backend = new InMemoryTerminalBackend(
+			new TerminalSize(80, 24),
+			new TerminalCapabilities { AnsiEnabled = ansi, IsOutputRedirected = redirected, IsInputRedirected = false, ColorLevel = color, }
+		);
 		return (new TerminalInstance(backend), backend);
 	}
 

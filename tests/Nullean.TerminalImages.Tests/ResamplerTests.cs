@@ -71,8 +71,8 @@ public class ResamplerTests
 	[Test]
 	public void Resizing_a_solid_colour_keeps_the_colour_at_any_size()
 	{
-		Gen.Select(Gen.Int[1, 40], Gen.Int[1, 40], Gen.Int[1, 40], Gen.Int[1, 40], Gen.Byte, Gen.Byte, Gen.Byte)
-			.Sample(t =>
+		Gen.Select(Gen.Int[1, 40], Gen.Int[1, 40], Gen.Int[1, 40], Gen.Int[1, 40], Gen.Byte, Gen.Byte, Gen.Byte).Sample(
+			t =>
 			{
 				var (w, h, nw, nh, r, g, b) = t;
 				var resized = Resampler.Resize(RgbaImage.Solid(w, h, r, g, b), nw, nh);
@@ -84,7 +84,9 @@ public class ResamplerTests
 				}
 
 				return resized.Width == nw && resized.Height == nh;
-			}, iter: 300);
+			},
+			iter: 300
+		);
 	}
 
 	[Test]

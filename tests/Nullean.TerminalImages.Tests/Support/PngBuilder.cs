@@ -11,10 +11,24 @@ namespace Nullean.TerminalImages.Tests.Support;
 internal static class PngBuilder
 {
 	public static byte[] Build(
-		int colorType, int bitDepth, bool interlace, int width, int height,
-		Func<int, int, int, int> sample, byte[]? palette = null, byte[]? transparency = null)
+		int colorType,
+		int bitDepth,
+		bool interlace,
+		int width,
+		int height,
+		Func<int, int, int, int> sample,
+		byte[]? palette = null,
+		byte[]? transparency = null
+	)
 	{
-		var channels = colorType switch { 0 => 1, 2 => 3, 3 => 1, 4 => 2, _ => 4 };
+		var channels = colorType switch
+		{
+			0 => 1,
+			2 => 3,
+			3 => 1,
+			4 => 2,
+			_ => 4
+		};
 		var bitsPerPixel = channels * bitDepth;
 		var bytesPerPixel = Math.Max(1, bitsPerPixel / 8);
 

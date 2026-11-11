@@ -16,14 +16,21 @@ public static class XenoAtomTerminalImages
 	/// <param name="terminal">The terminal.</param>
 	/// <param name="probe">Whether to ask the terminal (macOS and Linux only). Do this before the input loop starts.</param>
 	/// <param name="cancellationToken">Cancels the probe.</param>
-	public static async ValueTask<TerminalImageCapabilities> DetectImagesAsync(this TerminalInstance terminal, bool probe = false, CancellationToken cancellationToken = default)
+	public static async ValueTask<TerminalImageCapabilities> DetectImagesAsync(
+		this TerminalInstance terminal,
+		bool probe = false,
+		CancellationToken cancellationToken = default
+	)
 	{
 		ArgumentNullException.ThrowIfNull(terminal);
-		var capabilities = await TerminalImageDetector.DetectAsync(new TerminalImageDetectionOptions
-		{
-			IsOutputRedirected = terminal.Capabilities.IsOutputRedirected || !terminal.Capabilities.AnsiEnabled,
-			Channel = probe ? null : TerminalImageDetectionOptions.NoProbing,
-		}, cancellationToken).ConfigureAwait(false);
+		var capabilities = await TerminalImageDetector.DetectAsync(
+			new TerminalImageDetectionOptions
+			{
+				IsOutputRedirected = terminal.Capabilities.IsOutputRedirected || !terminal.Capabilities.AnsiEnabled,
+				Channel = probe ? null : TerminalImageDetectionOptions.NoProbing,
+			},
+			cancellationToken
+		).ConfigureAwait(false);
 
 		// XenoAtom knows the colour level better than COLORTERM does, so it decides how half blocks are coloured.
 		return capabilities.Confidence == DetectionConfidence.Forced
@@ -37,18 +44,19 @@ public static class XenoAtomTerminalImages
 	/// <param name="capabilities">What the terminal can show, from <see cref="DetectImagesAsync"/>. Null detects from the environment.</param>
 	/// <param name="options">Size limits and other settings. Null fits the image to the terminal window.</param>
 	/// <returns>False when nothing was drawn because the terminal cannot show images.</returns>
-	public static bool WriteImage(this TerminalInstance terminal, RgbaImage image, TerminalImageCapabilities? capabilities = null, TerminalImageRenderOptions? options = null)
+	public static bool WriteImage(
+		this TerminalInstance terminal,
+		RgbaImage image,
+		TerminalImageCapabilities? capabilities = null,
+		TerminalImageRenderOptions? options = null
+	)
 	{
 		ArgumentNullException.ThrowIfNull(terminal);
 		ArgumentNullException.ThrowIfNull(image);
 
 		capabilities ??= terminal.DetectImagesAsync().AsTask().GetAwaiter().GetResult(); // environment only: completes synchronously
 		var size = terminal.Size;
-		options ??= new TerminalImageRenderOptions
-		{
-			MaxColumns = Math.Max(1, size.Columns),
-			MaxRows = Math.Max(1, size.Rows - 1),
-		};
+		options ??= new TerminalImageRenderOptions { MaxColumns = Math.Max(1, size.Columns), MaxRows = Math.Max(1, size.Rows - 1), };
 
 		var text = new StringWriter();
 		if (!new TerminalImageRenderer(capabilities, options).Render(image, text))
@@ -61,6 +69,10 @@ public static class XenoAtomTerminalImages
 
 	/// <summary>Decodes a PNG file and draws it.</summary>
 	/// <inheritdoc cref="WriteImage(TerminalInstance, RgbaImage, TerminalImageCapabilities?, TerminalImageRenderOptions?)"/>
-	public static bool WritePng(this TerminalInstance terminal, ReadOnlySpan<byte> png, TerminalImageCapabilities? capabilities = null, TerminalImageRenderOptions? options = null) =>
-		terminal.WriteImage(Png.PngDecoder.Decode(png), capabilities, options);
+	public static bool WritePng(
+		this TerminalInstance terminal,
+		ReadOnlySpan<byte> png,
+		TerminalImageCapabilities? capabilities = null,
+		TerminalImageRenderOptions? options = null
+	) => terminal.WriteImage(Png.PngDecoder.Decode(png), capabilities, options);
 }

@@ -13,6 +13,10 @@ dotnet = ["""{{ read_file(path='global.json') | split(pat='"version"') | nth(n=1
 gh = "latest"
 zizmor = "1"
 
+[tasks.setup]
+description = "Restore the local .NET tools (curb)"
+run = "dotnet tool restore"
+
 [tasks.build]
 description = "Build the solution"
 run = "dotnet build -c Release"
@@ -21,9 +25,15 @@ run = "dotnet build -c Release"
 description = "Build, then run the tests"
 run = ["dotnet build -c Release", "dotnet test -c Release --no-build"]
 
+[tasks.format]
+description = "Format the repository with curb"
+depends = ["setup"]
+run = "dotnet curb format ."
+
 [tasks.check]
-description = "Fail on workflow findings (zizmor)"
-run = "zizmor --min-severity medium ."
+description = "Fail on formatting drift (curb) and on workflow findings (zizmor)"
+depends = ["setup"]
+run = ["dotnet curb check .", "zizmor --min-severity medium ."]
 
 [tasks.pack]
 description = "Build, then pack the libraries into .artifacts/package-output"
@@ -46,11 +56,12 @@ description = "Delete build output"
 run = "dotnet clean -c Release"
 
 [tasks.ci]
-description = "What CI's build job runs: build, test, NativeAOT smoke publish and run, the pty probe test, and pack"
+description = "What CI's build job runs: build, the curb formatting check, test, NativeAOT smoke publish and run, the pty probe test, and pack"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 dotnet build -c Release
+dotnet tool restore && dotnet curb check .
 dotnet test -c Release --no-build
 
 # Fails on any IL2xxx / IL3xxx trim or AOT warning, because warnings are errors.

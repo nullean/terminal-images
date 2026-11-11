@@ -123,13 +123,16 @@ public sealed class TerminalImage : Renderable
 	{
 		capabilities = Capabilities ?? DefaultCapabilities;
 		var height = MaxHeight ?? options.Height ?? options.ConsoleSize.Height;
-		return new TerminalImageRenderer(capabilities, new TerminalImageRenderOptions
-		{
-			MaxColumns = Math.Max(1, Math.Min(MaxWidth ?? maxWidth, maxWidth)),
-			MaxRows = Math.Max(1, height > 0 ? height : 24),
-			AllowUpscale = AllowUpscale,
-			Resample = Resample,
-		});
+		return new TerminalImageRenderer(
+			capabilities,
+			new TerminalImageRenderOptions
+			{
+				MaxColumns = Math.Max(1, Math.Min(MaxWidth ?? maxWidth, maxWidth)),
+				MaxRows = Math.Max(1, height > 0 ? height : 24),
+				AllowUpscale = AllowUpscale,
+				Resample = Resample,
+			}
+		);
 	}
 
 	private static ITerminalImageEncoder CreateEncoder(TerminalImageProtocol protocol, TerminalImageCapabilities capabilities) => protocol switch
