@@ -51,6 +51,9 @@ jobs:
       - name: Build
         run: dotnet build -c Release
 
+      - name: Check formatting (curb)
+        run: dotnet tool restore && dotnet curb check .
+
       - name: Test
         run: dotnet test -c Release --no-build
 
