@@ -22,9 +22,14 @@
     <Authors>Nullean and contributors</Authors>
     <Copyright>Nullean</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/nullean/terminal-images</PackageProjectUrl>
+    <PackageProjectUrl>https://terminal-images.nullean.net</PackageProjectUrl>
+    <PackageReleaseNotes>https://github.com/nullean/terminal-images/releases</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/nullean/terminal-images</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>nuget-icon.png</PackageIcon>
   </PropertyGroup>
@@ -32,6 +37,8 @@
   <ItemGroup Condition="$(MSBuildProjectDirectory.Replace('\','/').Contains('/src/'))">
     <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="README.md" Visible="false" />
     <None Include="$(MSBuildThisFileDirectory)nuget-icon.png" Pack="true" PackagePath="nuget-icon.png" Visible="false" />
+    <!-- the project's agent skill, skills/<name>/SKILL.md: https://devblogs.microsoft.com/dotnet/delivering-skills-in-nuget-packages/ -->
+    <None Include="$(MSBuildProjectDirectory)/skills/**/*" Pack="true" PackagePath="skills/" Visible="false" />
   </ItemGroup>
 
   <!-- examples/ projects: never packed, no XML docs needed -->
