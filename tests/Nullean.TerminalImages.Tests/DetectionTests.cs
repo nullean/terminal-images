@@ -7,8 +7,7 @@ namespace Nullean.TerminalImages.Tests;
 
 public class DetectionTests
 {
-	private static TerminalEnvironment Env(params (string, string)[] variables) =>
-		TerminalEnvironment.From(variables.ToDictionary(v => v.Item1, v => v.Item2));
+	private static TerminalEnvironment Env(params (string, string)[] variables) => TerminalEnvironment.From(variables.ToDictionary(v => v.Item1, v => v.Item2));
 
 	private static TerminalImageCapabilities FromEnv(params (string, string)[] variables) =>
 		TerminalImageDetector.DetectFromEnvironment(Env(variables), isOutputRedirected: false);
@@ -136,13 +135,18 @@ public class DetectionTests
 
 	[Test]
 	public void ParseProtocol_knows_its_names() =>
-		ProtocolNames.Select(TerminalImageDetector.ParseProtocol)
-			.Should().Equal(P.Kitty, P.ITerm2, P.Sixel, P.HalfBlocks, P.None, P.None, null);
+		ProtocolNames.Select(TerminalImageDetector.ParseProtocol).Should().Equal(P.Kitty, P.ITerm2, P.Sixel, P.HalfBlocks, P.None, P.None, null);
 
 	// ---------- probing ----------
 
 	private static Task<TerminalImageCapabilities> Probe(FakeChannel channel, params (string, string)[] variables) =>
-		TerminalImageDetector.DetectAsync(new TerminalImageDetectionOptions { Environment = Env(variables), IsOutputRedirected = false, Channel = channel, ProbeKitty = true }).AsTask();
+		TerminalImageDetector.DetectAsync(new TerminalImageDetectionOptions
+		{
+			Environment = Env(variables),
+			IsOutputRedirected = false,
+			Channel = channel,
+			ProbeKitty = true
+		}).AsTask();
 
 	[Test]
 	public async Task The_probe_ends_with_DA1_and_includes_the_kitty_query()

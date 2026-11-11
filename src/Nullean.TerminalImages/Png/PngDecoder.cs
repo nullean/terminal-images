@@ -103,7 +103,19 @@ public static class PngDecoder
 				var passHeight = (header.Height - AdamStartY[pass] + AdamStepY[pass] - 1) / AdamStepY[pass];
 				if (passWidth <= 0 || passHeight <= 0)
 					continue;
-				offset = DecodePass(raw, offset, header, passWidth, passHeight, converter, rgba, AdamStartX[pass], AdamStartY[pass], AdamStepX[pass], AdamStepY[pass]);
+				offset = DecodePass(
+					raw,
+					offset,
+					header,
+					passWidth,
+					passHeight,
+					converter,
+					rgba,
+					AdamStartX[pass],
+					AdamStartY[pass],
+					AdamStepX[pass],
+					AdamStepY[pass]
+				);
 				if (offset < 0)
 					throw new InvalidDataException("The PNG image data is shorter than the header says.");
 			}
@@ -119,7 +131,14 @@ public static class PngDecoder
 
 	private readonly record struct Header(int Width, int Height, int BitDepth, int ColorType, int Interlace)
 	{
-		public int Channels => ColorType switch { 0 => 1, 2 => 3, 3 => 1, 4 => 2, _ => 4 };
+		public int Channels => ColorType switch
+		{
+			0 => 1,
+			2 => 3,
+			3 => 1,
+			4 => 2,
+			_ => 4
+		};
 
 		public int BitsPerPixel => Channels * BitDepth;
 	}
@@ -167,7 +186,19 @@ public static class PngDecoder
 	}
 
 	/// <summary>Reads one (sub)image from <paramref name="raw"/>, returning the offset after it, or -1 when the data is too short.</summary>
-	private static int DecodePass(byte[] raw, int offset, Header header, int width, int height, PixelConverter converter, byte[] rgba, int startX, int startY, int stepX, int stepY)
+	private static int DecodePass(
+		byte[] raw,
+		int offset,
+		Header header,
+		int width,
+		int height,
+		PixelConverter converter,
+		byte[] rgba,
+		int startX,
+		int startY,
+		int stepX,
+		int stepY
+	)
 	{
 		var stride = ((width * header.BitsPerPixel) + 7) / 8;
 		var bytesPerPixel = Math.Max(1, header.BitsPerPixel / 8);
@@ -250,10 +281,8 @@ public static class PngDecoder
 				case 2:
 					{
 						int r = Sample(row, x, 0, 3), g = Sample(row, x, 1, 3), b = Sample(row, x, 2, 3);
-						var transparent = transparentKey is { Length: >= 6 }
-							&& r == ((transparentKey[0] << 8) | transparentKey[1])
-							&& g == ((transparentKey[2] << 8) | transparentKey[3])
-							&& b == ((transparentKey[4] << 8) | transparentKey[5]);
+						var transparent = transparentKey is { Length: >= 6 } && r == ((transparentKey[0] << 8) | transparentKey[1]) && g ==
+							((transparentKey[2] << 8) | transparentKey[3]) && b == ((transparentKey[4] << 8) | transparentKey[5]);
 						destination[0] = Scale(r);
 						destination[1] = Scale(g);
 						destination[2] = Scale(b);

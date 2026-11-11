@@ -110,7 +110,13 @@ public sealed class HalfBlockEncoder : ITerminalImageEncoder
 		var b = rgb.Value & 0xFF;
 		line.Append("\e[").Append(foreground ? '3' : '4');
 		if (ColorDepth == HalfBlockColorDepth.TrueColor)
-			line.Append("8;2;").Append(r.ToString(CultureInfo.InvariantCulture)).Append(';').Append(g.ToString(CultureInfo.InvariantCulture)).Append(';').Append(b.ToString(CultureInfo.InvariantCulture));
+			line
+				.Append("8;2;")
+				.Append(r.ToString(CultureInfo.InvariantCulture))
+				.Append(';')
+				.Append(g.ToString(CultureInfo.InvariantCulture))
+				.Append(';')
+				.Append(b.ToString(CultureInfo.InvariantCulture));
 		else
 			line.Append("8;5;").Append(ToXterm256(r, g, b).ToString(CultureInfo.InvariantCulture));
 		line.Append('m');
@@ -120,6 +126,7 @@ public sealed class HalfBlockEncoder : ITerminalImageEncoder
 	internal static int ToXterm256(int r, int g, int b)
 	{
 		static int Level(int value) => value < 48 ? 0 : value < 115 ? 1 : (value - 35) / 40;
+
 		static int CubeValue(int level) => level == 0 ? 0 : 55 + (40 * level);
 
 		var cr = Level(r);

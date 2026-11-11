@@ -20,7 +20,9 @@ for (var i = 0; i < args.Length; i++)
 	switch (args[i])
 	{
 		case "-h" or "--help":
-			Console.WriteLine("Usage: tcat [--protocol kitty|iterm2|sixel|blocks|none|auto] [--no-probe] [--diagnostics] [--upscale] [--max-columns N] [--max-rows N] <image.png>");
+			Console.WriteLine(
+				"Usage: tcat [--protocol kitty|iterm2|sixel|blocks|none|auto] [--no-probe] [--diagnostics] [--upscale] [--max-columns N] [--max-rows N] <image.png>"
+			);
 			return 0;
 		case "--protocol" when i + 1 < args.Length:
 			var name = args[++i];
@@ -119,12 +121,10 @@ if (width <= 0)
 if (height <= 0)
 	height = 24;
 
-var renderer = new TerminalImageRenderer(capabilities, new TerminalImageRenderOptions
-{
-	MaxColumns = maxColumns ?? Math.Max(1, width),
-	MaxRows = maxRows ?? Math.Max(1, height - 2),
-	AllowUpscale = upscale,
-});
+var renderer = new TerminalImageRenderer(
+	capabilities,
+	new TerminalImageRenderOptions { MaxColumns = maxColumns ?? Math.Max(1, width), MaxRows = maxRows ?? Math.Max(1, height - 2), AllowUpscale = upscale, }
+);
 
 using var stdout = Console.OpenStandardOutput();
 using var writer = new StreamWriter(stdout, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false), 64 * 1024);

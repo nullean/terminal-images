@@ -96,7 +96,9 @@ public class TerminalImageView : View
 			}
 		}
 
-		var destination = ViewportToScreen(new Rectangle(0, 0, Math.Clamp((width + cellWidth - 1) / cellWidth, 1, columns), Math.Clamp((height + cellHeight - 1) / cellHeight, 1, rows)));
+		var destination = ViewportToScreen(
+			new Rectangle(0, 0, Math.Clamp((width + cellWidth - 1) / cellWidth, 1, columns), Math.Clamp((height + cellHeight - 1) / cellHeight, 1, rows))
+		);
 		driver.GetOutputBuffer().AddRasterImage(new RasterImageCommand
 		{
 			Id = $"nullean-terminal-image-{RuntimeHelpers.GetHashCode(this)}",

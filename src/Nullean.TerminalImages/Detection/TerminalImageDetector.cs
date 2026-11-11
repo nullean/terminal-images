@@ -34,7 +34,8 @@ public sealed class TerminalImageDetectionOptions
 
 	private sealed class NoProbingChannel : ITerminalQueryChannel
 	{
-		public ValueTask<string> QueryAsync(string request, Func<string, bool> isComplete, TimeSpan timeout, CancellationToken cancellationToken) => ValueTask.FromResult(string.Empty);
+		public ValueTask<string> QueryAsync(string request, Func<string, bool> isComplete, TimeSpan timeout, CancellationToken cancellationToken) =>
+			ValueTask.FromResult(string.Empty);
 	}
 }
 
@@ -48,7 +49,11 @@ public static class TerminalImageDetector
 	private static readonly TerminalImageProtocol[] DefaultOrder = [TerminalImageProtocol.Kitty, TerminalImageProtocol.ITerm2, TerminalImageProtocol.Sixel];
 
 	/// <summary>Detects from the environment only: no I/O, no waiting.</summary>
-	public static TerminalImageCapabilities DetectFromEnvironment(TerminalEnvironment environment, bool isOutputRedirected, TerminalImageProtocol? forced = null)
+	public static TerminalImageCapabilities DetectFromEnvironment(
+		TerminalEnvironment environment,
+		bool isOutputRedirected,
+		TerminalImageProtocol? forced = null
+	)
 	{
 		ArgumentNullException.ThrowIfNull(environment);
 		return FromEnvironment(environment, isOutputRedirected, forced).Capabilities;
@@ -94,7 +99,13 @@ public static class TerminalImageDetector
 
 	private const string SixelRegistersRequest = "\e[?1;1;0S\e[c";
 
-	private static async ValueTask<TerminalImageCapabilities> Probe(TerminalImageCapabilities fromEnvironment, ITerminalQueryChannel channel, TimeSpan timeout, bool? probeKitty, CancellationToken cancellationToken)
+	private static async ValueTask<TerminalImageCapabilities> Probe(
+		TerminalImageCapabilities fromEnvironment,
+		ITerminalQueryChannel channel,
+		TimeSpan timeout,
+		bool? probeKitty,
+		CancellationToken cancellationToken
+	)
 	{
 		var diagnostics = new List<string>(fromEnvironment.Diagnostics);
 		var includeKitty = (probeKitty ?? !OperatingSystem.IsWindows()) && !TerminalBrands.SkipsKittyProbe(fromEnvironment.Brand);
@@ -119,9 +130,11 @@ public static class TerminalImageDetector
 		var replies = ProbeReplyParser.Parse(text);
 		if (!replies.HasDeviceAttributes)
 		{
-			diagnostics.Add(text.Length == 0
-				? "The terminal did not answer the probe: using the environment only."
-				: "The probe reply was incomplete: using the environment only.");
+			diagnostics.Add(
+				text.Length == 0
+					? "The terminal did not answer the probe: using the environment only."
+					: "The probe reply was incomplete: using the environment only."
+			);
 			return fromEnvironment with { Diagnostics = diagnostics };
 		}
 
@@ -145,7 +158,9 @@ public static class TerminalImageDetector
 			try
 			{
 				var request2 = fromEnvironment.IsMultiplexer ? TmuxPassthrough.Wrap(SixelRegistersRequest) : SixelRegistersRequest;
-				var more = ProbeReplyParser.Parse(await channel.QueryAsync(request2, ProbeReplyParser.IsComplete, timeout, cancellationToken).ConfigureAwait(false));
+				var more = ProbeReplyParser.Parse(
+					await channel.QueryAsync(request2, ProbeReplyParser.IsComplete, timeout, cancellationToken).ConfigureAwait(false)
+				);
 				registers = more.SixelColorRegisters;
 			}
 			catch (Exception exception) when (exception is IOException or InvalidOperationException or NotSupportedException)
@@ -183,10 +198,11 @@ public static class TerminalImageDetector
 		if (fromEnvironment.Supports(TerminalImageProtocol.HalfBlocks) || supported.Count > 0)
 			supported.Add(TerminalImageProtocol.HalfBlocks);
 
-		diagnostics.Add($"Probe answered: preferred protocol {(supported.Count > 0 ? supported[0] : TerminalImageProtocol.None)}"
-			+ (replies.SupportsSixel ? ", Sixel listed by the terminal" : string.Empty)
-			+ (replies.CellSize is { } cell ? $", cell {cell.Width}x{cell.Height}px" : string.Empty)
-			+ ".");
+		diagnostics.Add(
+			$"Probe answered: preferred protocol {(supported.Count > 0 ? supported[0] : TerminalImageProtocol.None)}" +
+				(replies.SupportsSixel ? ", Sixel listed by the terminal" : string.Empty) +
+				(replies.CellSize is { } cell ? $", cell {cell.Width}x{cell.Height}px" : string.Empty) + "."
+		);
 
 		return fromEnvironment with
 		{
@@ -207,7 +223,11 @@ public static class TerminalImageDetector
 	}
 
 	/// <summary>The environment step. The second value is true when the answer is final and no probe should follow.</summary>
-	private static (TerminalImageCapabilities Capabilities, bool Final) FromEnvironment(TerminalEnvironment environment, bool isOutputRedirected, TerminalImageProtocol? forced)
+	private static (TerminalImageCapabilities Capabilities, bool Final) FromEnvironment(
+		TerminalEnvironment environment,
+		bool isOutputRedirected,
+		TerminalImageProtocol? forced
+	)
 	{
 		var diagnostics = new List<string>();
 		var multiplexer = environment.Has("TMUX") || environment.Has("STY");
@@ -247,7 +267,11 @@ public static class TerminalImageDetector
 		// 2. Gates.
 		if (isOutputRedirected)
 		{
-			return (TerminalImageCapabilities.None("Standard output is redirected: nothing is drawn.") with { IsMultiplexer = multiplexer, IsRemote = remote }, true);
+			return (TerminalImageCapabilities.None("Standard output is redirected: nothing is drawn.") with
+			{
+				IsMultiplexer = multiplexer,
+				IsRemote = remote
+			}, true);
 		}
 
 		if (environment.Is("TERM", "dumb"))
@@ -328,10 +352,14 @@ public static class TerminalImageDetector
 		if (text is null)
 			return null;
 		var parts = text.Split('x', 'X');
-		if (parts.Length == 2
-			&& int.TryParse(parts[0], NumberStyles.None, CultureInfo.InvariantCulture, out var width)
-			&& int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out var height)
-			&& width > 0 && height > 0)
+		if (
+			parts.Length == 2 && int.TryParse(parts[0], NumberStyles.None, CultureInfo.InvariantCulture, out var width) && int.TryParse(
+				parts[1],
+				NumberStyles.None,
+				CultureInfo.InvariantCulture,
+				out var height
+			) && width > 0 && height > 0
+		)
 		{
 			diagnostics.Add($"Cell size set by NULLEAN_TERMINAL_CELL_SIZE: {width}x{height}px.");
 			return new CellPixelSize(width, height);

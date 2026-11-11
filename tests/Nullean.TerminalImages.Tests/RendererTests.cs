@@ -7,8 +7,13 @@ namespace Nullean.TerminalImages.Tests;
 
 public class RendererTests
 {
-	private static TerminalImageCapabilities Caps(P protocol, bool multiplexer = false, CellPixelSize? cell = null, int? registers = null, bool trueColor = true) =>
-		new() { Supported = [protocol], IsMultiplexer = multiplexer, CellSize = cell, SixelColorRegisters = registers, TrueColor = trueColor };
+	private static TerminalImageCapabilities Caps(
+		P protocol,
+		bool multiplexer = false,
+		CellPixelSize? cell = null,
+		int? registers = null,
+		bool trueColor = true
+	) => new() { Supported = [protocol], IsMultiplexer = multiplexer, CellSize = cell, SixelColorRegisters = registers, TrueColor = trueColor };
 
 	private static string Render(TerminalImageCapabilities caps, RgbaImage image, TerminalImageRenderOptions? options = null)
 	{
@@ -43,7 +48,9 @@ public class RendererTests
 
 		new TerminalImageRenderer(caps).Layout(image).Should().Be(new TerminalImageLayout(30, 40, new CellSize(3, 2)));
 		new TerminalImageRenderer(caps, new TerminalImageRenderOptions { AllowUpscale = true, MaxColumns = 10, MaxRows = 10 })
-			.Layout(image).Should().Be(new TerminalImageLayout(100, 133, new CellSize(10, 7))); // width-limited: 100/30 = 3.33x
+			.Layout(image)
+			.Should()
+			.Be(new TerminalImageLayout(100, 133, new CellSize(10, 7))); // width-limited: 100/30 = 3.33x
 	}
 
 	[Test]

@@ -84,10 +84,13 @@ public class ProbeReplyParserTests
 	{
 		// Terminals send arbitrary bytes, including the user's own typing. Bias the alphabet to the characters that matter.
 		var alphabet = Gen.Char["\e[]_P>?;0123456789cStG=\\ \a|"].Array[0, 60].Select(chars => new string(chars));
-		alphabet.Sample(text =>
-		{
-			ProbeReplyParser.Parse(text);
-			return true;
-		}, iter: 5000);
+		alphabet.Sample(
+			text =>
+			{
+				ProbeReplyParser.Parse(text);
+				return true;
+			},
+			iter: 5000
+		);
 	}
 }

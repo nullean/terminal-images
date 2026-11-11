@@ -35,8 +35,10 @@ public class TerminalGuiImagesTests
 	[Test]
 	public void Kitty_support_follows_the_detection()
 	{
-		TerminalGuiImages.ToKittySupport(Caps(new CellPixelSize(8, 16), null, P.Kitty)).Should().Match<Terminal.Gui.Drawing.KittyGraphicsSupportResult>(
-			r => r.IsSupported && r.Resolution == new System.Drawing.Size(8, 16));
+		TerminalGuiImages
+			.ToKittySupport(Caps(new CellPixelSize(8, 16), null, P.Kitty))
+			.Should()
+			.Match<Terminal.Gui.Drawing.KittyGraphicsSupportResult>(r => r.IsSupported && r.Resolution == new System.Drawing.Size(8, 16));
 		TerminalGuiImages.ToKittySupport(Caps(supported: P.Sixel)).IsSupported.Should().BeFalse();
 	}
 
@@ -49,8 +51,7 @@ public class TerminalGuiImagesTests
 
 public class TerminalImageViewTests
 {
-	private static TerminalImageCapabilities Caps(params P[] supported) =>
-		new() { Supported = supported, CellSize = new CellPixelSize(10, 20) };
+	private static TerminalImageCapabilities Caps(params P[] supported) => new() { Supported = supported, CellSize = new CellPixelSize(10, 20) };
 
 	/// <summary>Terminal.Gui consumes raster commands when it flushes a frame, so the command is captured as the view adds it.</summary>
 	internal static CapturingView DrawView(P[] supported, RgbaImage image, int width = 20, int height = 5) => Draw(supported, image, width, height);
@@ -183,7 +184,8 @@ internal sealed class CapturingView : TerminalImageView
 	protected override bool OnDrawingContent(Terminal.Gui.ViewBase.DrawContext? context)
 	{
 		var result = base.OnDrawingContent(context);
-		Seen = $"drawn with viewport {Viewport}, driver {(App?.Driver is null ? "missing" : "present")}, sixel {App?.Driver?.SixelSupport?.IsSupported}, kitty {App?.Driver?.KittyGraphicsSupport?.IsSupported}";
+		Seen =
+			$"drawn with viewport {Viewport}, driver {(App?.Driver is null ? "missing" : "present")}, sixel {App?.Driver?.SixelSupport?.IsSupported}, kitty {App?.Driver?.KittyGraphicsSupport?.IsSupported}";
 		var images = App?.Driver?.GetOutputBuffer().GetRasterImages();
 		Captured = images is { Count: > 0 } ? images[0] : null;
 		var origin = ViewportToScreen(System.Drawing.Point.Empty);

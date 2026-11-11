@@ -74,6 +74,5 @@ public sealed class RgbaImage
 		return new RgbaImage(Width, Height, dst);
 	}
 
-	private static byte Blend(byte foreground, byte background, byte alpha) =>
-		(byte)(((foreground * alpha) + (background * (255 - alpha)) + 127) / 255);
+	private static byte Blend(byte foreground, byte background, byte alpha) => (byte)(((foreground * alpha) + (background * (255 - alpha)) + 127) / 255);
 }

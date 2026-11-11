@@ -27,6 +27,7 @@ public class PngTests
 	public void Gray_decodes_at_every_depth_and_interlace(int depth, bool interlace)
 	{
 		int Sample(int x, int y, int c) => ((x * 3) + (y * 5)) % (Max(depth) + 1);
+
 		var png = PngBuilder.Build(0, depth, interlace, W, H, Sample);
 
 		var image = PngDecoder.Decode(png);
@@ -51,12 +52,15 @@ public class PngTests
 	public void Rgb_decodes(int depth, bool interlace)
 	{
 		int Sample(int x, int y, int c) => ((x * 17) + (y * 31) + (c * 53)) % (Max(depth) + 1);
+
 		var image = PngDecoder.Decode(PngBuilder.Build(2, depth, interlace, W, H, Sample));
 
 		for (var y = 0; y < H; y++)
 		{
 			for (var x = 0; x < W; x++)
-				Pixel(image, x, y).Should().Be((Scaled(Sample(x, y, 0), depth), Scaled(Sample(x, y, 1), depth), Scaled(Sample(x, y, 2), depth), Opaque), $"at {x},{y}");
+				Pixel(image, x, y)
+					.Should()
+					.Be((Scaled(Sample(x, y, 0), depth), Scaled(Sample(x, y, 1), depth), Scaled(Sample(x, y, 2), depth), Opaque), $"at {x},{y}");
 		}
 	}
 
@@ -74,6 +78,7 @@ public class PngTests
 		var alpha = new byte[] { 10, 200 }; // fewer entries than the palette: the rest are opaque
 
 		int Sample(int x, int y, int c) => (x + y) % entries;
+
 		var image = PngDecoder.Decode(PngBuilder.Build(3, depth, interlace: depth == 4, W, H, Sample, palette, alpha));
 
 		for (var y = 0; y < H; y++)
@@ -103,7 +108,12 @@ public class PngTests
 			{
 				var gray = Scaled(Sample(x, y, 0), depth);
 				Pixel(grayAlpha, x, y).Should().Be((gray, gray, gray, Scaled(Sample(x, y, 1), depth)), $"gray+alpha at {x},{y}");
-				Pixel(rgba, x, y).Should().Be((Scaled(Sample(x, y, 0), depth), Scaled(Sample(x, y, 1), depth), Scaled(Sample(x, y, 2), depth), Scaled(Sample(x, y, 3), depth)), $"rgba at {x},{y}");
+				Pixel(rgba, x, y)
+					.Should()
+					.Be(
+						(Scaled(Sample(x, y, 0), depth), Scaled(Sample(x, y, 1), depth), Scaled(Sample(x, y, 2), depth), Scaled(Sample(x, y, 3), depth)),
+						$"rgba at {x},{y}"
+					);
 			}
 		}
 	}
@@ -118,6 +128,7 @@ public class PngTests
 
 		// RGB 8-bit: only the exact triple (1,2,3) is transparent.
 		static int Rgb(int x, int y, int c) => (x + y) % 2 == 0 ? c + 1 : c + 9;
+
 		var rgb = PngDecoder.Decode(PngBuilder.Build(2, 8, false, W, H, Rgb, transparency: [0, 1, 0, 2, 0, 3]));
 		Pixel(rgb, 0, 0).Item4.Should().Be(0);
 		Pixel(rgb, 1, 0).Item4.Should().Be(255);
@@ -159,15 +170,13 @@ public class PngTests
 	[Test]
 	public void Encoder_round_trips_any_image()
 	{
-		var generator = Gen.Int[1, 24].SelectMany(w => Gen.Int[1, 24].SelectMany(h =>
-			Gen.Byte.Array[w * h * 4].Select(bytes => new RgbaImage(w, h, bytes))));
+		var generator = Gen.Int[1, 24].SelectMany(w => Gen.Int[1, 24].SelectMany(h => Gen.Byte.Array[w * h * 4].Select(bytes => new RgbaImage(w, h, bytes))));
 
 		generator.Sample(image => PngDecoder.Decode(PngEncoder.Encode(image)).Pixels.ToArray().SequenceEqual(image.Pixels.ToArray()), iter: 200);
 	}
 
 	[Test]
-	public void Crc32_matches_the_known_check_value() =>
-		Crc32.Compute("123456789"u8).Should().Be(0xCBF43926u);
+	public void Crc32_matches_the_known_check_value() => Crc32.Compute("123456789"u8).Should().Be(0xCBF43926u);
 
 	private static (byte, byte, byte, byte) Pixel(RgbaImage image, int x, int y)
 	{
