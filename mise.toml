@@ -1,0 +1,75 @@
+# Bootstraps the toolchain and is the one entry point: `mise run <task>`, the same task names in every nullean repo.
+# The .NET SDK version lives only in global.json: the first dotnet entry reads it from there (sdk.version is the first
+# "version" key). The net10.0 runtime is listed after it because every project and test here targets net10.0.
+# There is no build project: the tasks run the same dotnet commands as CI's build job (.github/workflows/ci.yml).
+
+[env]
+DOTNET_NOLOGO = "1"
+DOTNET_CLI_TELEMETRY_OPTOUT = "1"
+DOTNET_SKIP_FIRST_TIME_EXPERIENCE = "1"
+
+[tools]
+dotnet = ["""{{ read_file(path='global.json') | split(pat='"version"') | nth(n=1) | split(pat='"') | nth(n=1) }}""", "10"]
+gh = "latest"
+zizmor = "1"
+
+[tasks.build]
+description = "Build the solution"
+run = "dotnet build -c Release"
+
+[tasks.test]
+description = "Build, then run the tests"
+run = ["dotnet build -c Release", "dotnet test -c Release --no-build"]
+
+[tasks.check]
+description = "Fail on workflow findings (zizmor)"
+run = "zizmor --min-severity medium ."
+
+[tasks.pack]
+description = "Build, then pack the libraries into .artifacts/package-output"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+dotnet build -c Release
+for project in src/*/*.csproj; do
+  dotnet pack "$project" -c Release --no-build -o .artifacts/package-output
+done
+ls .artifacts/package-output
+'''
+
+[tasks.docs]
+description = "Build the documentation and serve it locally (needs docs-builder, see scripts/docs.sh)"
+run = "scripts/docs.sh"
+
+[tasks.clean]
+description = "Delete build output"
+run = "dotnet clean -c Release"
+
+[tasks.ci]
+description = "What CI's build job runs: build, test, NativeAOT smoke publish and run, the pty probe test, and pack"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+dotnet build -c Release
+dotnet test -c Release --no-build
+
+# Fails on any IL2xxx / IL3xxx trim or AOT warning, because warnings are errors.
+dotnet publish examples/Nullean.TerminalImages.Cat -c Release -o .artifacts/aot-smoke
+EXT=""
+case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) EXT=".exe" ;; esac
+ls -la ".artifacts/aot-smoke/tcat${EXT}"
+".artifacts/aot-smoke/tcat${EXT}" --diagnostics
+bytes="$(".artifacts/aot-smoke/tcat${EXT}" --protocol blocks --max-columns 40 examples/sunset.png | wc -c)"
+echo "half blocks: $bytes bytes"
+[ "$bytes" -gt 1000 ]
+
+# The pseudo-terminal test runs on macOS and Linux only (Windows detection is environment-only).
+if [ -z "$EXT" ]; then
+  python3 -I tests/pty/probe_test.py "$PWD/.artifacts/aot-smoke/tcat"
+fi
+
+for project in src/*/*.csproj; do
+  dotnet pack "$project" -c Release --no-build -o .artifacts/package-output
+done
+ls .artifacts/package-output
+'''
