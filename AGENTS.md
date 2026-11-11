@@ -36,6 +36,7 @@ mise run ci               # what CI's build job runs: build, test, NativeAOT smo
 mise run docs             # scripts/docs.sh: build the docs and serve them
 mise run check            # workflow security checks (zizmor)
 mise run clean            # dotnet clean -c Release
+mise run release          # show the release draft; `mise run release publish` releases
 ```
 
 Without mise:
@@ -66,11 +67,16 @@ a real Terminal.Gui application with its ANSI driver.
   analyzers reject many) and that it actually applied, or a passing run proves nothing.
 - Say what is verified and how, and what is not: the README status table is the place.
 - Record non-obvious choices in DECISIONS.md in the same change.
-- Never publish packages or push tags without the owner's approval. Releases are a manual workflow run on a tag, through nuget.org
-  trusted publishing (no key), as in the other nullean repos.
+- Never publish packages or push tags without the owner's approval. Releases come from publishing the release-drafter
+  draft, through nuget.org trusted publishing (no key), as in the other nullean repos.
+- Every pull request carries exactly one release label (`breaking`, `feature`, `enhancement`, `bug`, `fix`,
+  `documentation`, `chore`, `dependencies`, `ci`, or `changelog:skip`); the `pr-labels` check enforces it.
 
 ## Releasing
 
-A tag `X.Y.Z` (MinVer) runs CI. Publishing is `gh workflow run ci.yml --ref X.Y.Z`: the `release` job then packs, checks every
-package has the tag's version, logs in with trusted publishing (the org-wide `secrets.NUGET_USER`), pushes the core first,
-and creates the GitHub release.
+release-drafter keeps a draft release up to date from the labels of merged pull requests (0.x: `breaking`, `feature` and
+`enhancement` bump the minor version, everything else the patch). **Publishing the draft** releases: it creates the tag
+`X.Y.Z` (MinVer), and the `release` job in `ci.yml` waits for the build job on that tag, then packs at the tag's version,
+checks every package carries it, and pushes to nuget.org with trusted publishing (the org-wide `secrets.NUGET_USER`).
+`mise run release` shows the draft. The [releasing](.claude/skills/releasing/SKILL.md) and
+[breaking-changes](.claude/skills/breaking-changes/SKILL.md) skills have the details.
