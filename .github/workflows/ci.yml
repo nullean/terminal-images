@@ -18,16 +18,22 @@ concurrency:
 permissions:
   contents: read
 
-# What runs when:
-#   every trigger  build, test and pack the libraries on linux, windows and macos, and publish the NativeAOT smoke app
-#   release        all of the above on the tag, then the release job packs at the tag's version and pushes to nuget.org
+# What runs when (macOS runners are severely constrained, so macOS runs only on a push to main):
+#   pull requests, manual  build, test and pack the libraries on linux and windows, and publish the NativeAOT smoke app
+#   main                   the same on macos too
+#   release                no tests: the shared workflow's main-green job waits for main's run on the released commit and
+#                          fails unless it passed, then the release job packs at the tag's version and pushes to nuget.org
 
 jobs:
   build:
+    if: github.event_name != 'release'
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: >-
+          ${{ fromJSON(github.event_name == 'push'
+            && '["ubuntu-latest", "windows-latest", "macos-latest"]'
+            || '["ubuntu-latest", "windows-latest"]') }}
     runs-on: ${{ matrix.os }}
     name: Build and test (${{ matrix.os }})
     timeout-minutes: 20
@@ -95,17 +101,19 @@ jobs:
           path: .artifacts/package-output/*.nupkg
           if-no-files-found: error
 
-  # Publishing to nuget.org: only when a release is published, and only once the build job (every OS, the NativeAOT smoke
-  # app and the pty test) and the workflow audit have passed on the tag. The shared release workflow packs at the tag's
+  # Publishing to nuget.org: only when a release is published, and only once main's run on the released commit (the build
+  # job on every OS, the NativeAOT smoke app and the pty test) has passed, which the shared workflow's main-green job
+  # checks first, and the workflow audit has passed on the tag. The shared release workflow packs at the tag's
   # version, checks every package carries it, and pushes with trusted publishing: nuget.org trusts this workflow file
   # (ci.yml) through a policy that names no environment, so none is passed. Publishing the draft already created the
   # GitHub release and its notes; this repository produces no public API report to append to them.
   # packs at the release's tag in the shared workflow...
   release:
     if: github.event_name == 'release'
-    needs: [build, zizmor]
-    uses: nullean/.github/.github/workflows/release.yml@d850ce6eee9efa9f81b410d15fcd480409518d19 # v1.5.0
+    needs: zizmor
+    uses: nullean/.github/.github/workflows/release.yml@e21d5f59405aa7078e51825cd4c407191e28562f # v1.6.1
     permissions:
+      actions: read # the main-green gate reads main's runs
       contents: write
     with:
       pack-task: pack
@@ -126,12 +134,12 @@ jobs:
         with:
           name: release-packages
           path: packages
-      - uses: nullean/.github/actions/nuget-publish@d850ce6eee9efa9f81b410d15fcd480409518d19 # v1.5.0
+      - uses: nullean/.github/actions/nuget-publish@e21d5f59405aa7078e51825cd4c407191e28562f # v1.6.1
         with:
           user: ${{ secrets.NUGET_USER }}
           packages-path: packages
   # Static analysis of these workflows (nullean/.github).
   zizmor:
-    uses: nullean/.github/.github/workflows/zizmor.yml@d850ce6eee9efa9f81b410d15fcd480409518d19 # v1.5.0
+    uses: nullean/.github/.github/workflows/zizmor.yml@e21d5f59405aa7078e51825cd4c407191e28562f # v1.6.1
     permissions:
       contents: read

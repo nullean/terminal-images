@@ -77,7 +77,8 @@ a real Terminal.Gui application with its ANSI driver.
 
 release-drafter keeps a draft release up to date from the labels of merged pull requests (0.x: `breaking`, `feature` and
 `enhancement` bump the minor version, everything else the patch). **Publishing the draft** releases: it creates the tag
-`X.Y.Z` (MinVer), and the `release` job in `ci.yml` waits for the build job on that tag, then packs at the tag's version,
+`X.Y.Z` (MinVer), and the `release` job in `ci.yml` first waits for main's push run of `ci.yml` on the released commit and
+fails unless it passed (a release runs no tests of its own; macOS runs only on pushes to main), then packs at the tag's version,
 checks every package carries it, and pushes to nuget.org with trusted publishing (the org-wide `secrets.NUGET_USER`).
 `mise run release` shows the draft. The [releasing](.claude/skills/releasing/SKILL.md) and
 [breaking-changes](.claude/skills/breaking-changes/SKILL.md) skills have the details.
